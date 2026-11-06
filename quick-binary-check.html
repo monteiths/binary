@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Task 1.3 · Quick Binary Check | Techquity</title>
+<style>
+:root{font:100%/1.5 Arial,sans-serif;color:#24152c;background:#fff;--purple:#5a108f;--pale:#f5eff9}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+main{max-width:46rem;margin:0 auto;padding:clamp(.75rem,3vw,1.5rem)}
+article{border:1px solid #ddcde8;border-radius:1rem;overflow:hidden}
+header{padding:1rem 1.25rem;background:var(--purple);color:white}
+header p{margin:0;font-size:.75rem;font-weight:bold;letter-spacing:.09em}
+h1{font-size:clamp(1.25rem,4vw,1.65rem);line-height:1.2;margin:.35rem 0 0}
+#body{padding:1rem 1.25rem}
+#progress{margin:0 0 .75rem;color:var(--purple);font-weight:bold;font-size:.9rem}
+fieldset{border:0;padding:0;margin:0;min-width:0}
+legend{padding:0;margin:0 0 .75rem;font-weight:bold;font-size:1.12rem;line-height:1.4}
+label{display:flex;align-items:center;gap:.6rem;padding:.6rem .7rem;border:1px solid #ddcde8;border-radius:.5rem;background:var(--pale);margin:0 0 .45rem;cursor:pointer}
+label:has(input:checked){border-color:var(--purple);background:#eaddf5}
+input[type=radio]{accent-color:var(--purple);flex:none;margin:0;width:1rem;height:1rem}
+label.good{background:#e8f5ed;border-color:#327754}
+label.miss{background:#fff1e6;border-color:#a85b24}
+label.good,label.miss{cursor:default}
+.actions{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem}
+button{font:inherit;font-weight:bold;border:1px solid var(--purple);border-radius:.5rem;background:var(--purple);color:#fff;padding:.5rem .9rem;min-height:44px;cursor:pointer}
+button:disabled{opacity:.55;cursor:default}
+:focus-visible{outline:3px solid #326ba8;outline-offset:3px}
+#feedback:not(:empty){padding:.65rem .8rem;border-radius:.5rem;margin-top:.75rem;background:var(--pale)}
+h2{margin:.1rem 0 .5rem;font-size:1.3rem}
+#results p{margin:.3rem 0}
+nav{display:flex;flex-wrap:wrap;gap:.6rem 1rem;margin:1rem 0 0;font-size:.9rem}
+a{color:var(--purple)}
+</style>
+</head>
+<body>
+<main>
+<article>
+<header><p>TECHQUITY / YEAR 9 COMPUTER SCIENCE</p><h1 id="title">Task 1.3 · Quick Binary Check</h1></header>
+<div id="body">
+<p>Take this quick quiz to check you understand binary.</p>
+<p id="progress" tabindex="-1"></p>
+<form id="quiz">
+<fieldset id="choices"></fieldset>
+<div id="feedback" role="status"></div>
+<div class="actions"><button id="check" type="submit" disabled>Check answer</button><button id="next" type="button" hidden>Next question</button></div>
+</form>
+<section id="results" hidden><h2 id="score" tabindex="-1"></h2><p id="summary"></p><div class="actions"><button id="retry" type="button">Try again</button></div></section>
+</div>
+</article>
+<noscript>Enable JavaScript to take the quiz.</noscript>
+</main>
+<script>
+const quiz = {
+  "title": "Task 1.3 · Quick Binary Check",
+  "questions": [
+    [
+      "Which two digits can appear in a binary number?",
+      [
+        "0 and 2",
+        "1 and 2",
+        "0 and 1",
+        "1 and 9"
+      ],
+      2,
+      "Binary uses only the digits 0 and 1. Each digit is called a bit."
+    ],
+    [
+      "In an 8-bit binary number, what is the place value of the rightmost bit?",
+      [
+        "1",
+        "2",
+        "8",
+        "128"
+      ],
+      0,
+      "The rightmost place is worth 1. Each place to its left is worth twice as much."
+    ],
+    [
+      "What is 00001010 in decimal?",
+      [
+        "2",
+        "8",
+        "12",
+        "10"
+      ],
+      3,
+      "The 8 and 2 places have a 1. Add 8 + 2 to get 10."
+    ],
+    [
+      "Which 8-bit binary number represents decimal 13?",
+      [
+        "00001011",
+        "00001101",
+        "00001110",
+        "00010001"
+      ],
+      1,
+      "13 is 8 + 4 + 1. Put a 1 in those three places and a 0 in every other place."
+    ],
+    [
+      "What is the largest value you can represent with eight bits using the place values 128, 64, 32, 16, 8, 4, 2 and 1?",
+      [
+        "128",
+        "254",
+        "255",
+        "256"
+      ],
+      2,
+      "Switch on all eight bits: 11111111 is 255. There are 256 possible values because the count starts at 0."
+    ]
+  ]
+};
+const byId = id => document.getElementById(id);
+const form = byId("quiz"), choices = byId("choices"), feedback = byId("feedback");
+const progress = byId("progress"), check = byId("check"), next = byId("next");
+const results = byId("results"), score = byId("score");
+let index = 0, points = 0, checked = false;
+document.title = quiz.title + " | Techquity";
+byId("title").textContent = quiz.title;
+function render(focus = false) {
+  const [question, options] = quiz.questions[index];
+  checked = false;
+  progress.textContent = "Question " + (index+1) + " of " + quiz.questions.length;
+  choices.replaceChildren();
+  choices.disabled = false;
+  const legend = document.createElement("legend");
+  legend.textContent = question;
+  choices.append(legend);
+  options.forEach((option, i) => {
+    const label = document.createElement("label");
+    const radio = document.createElement("input");
+    radio.type = "radio"; radio.name = "answer"; radio.value = i;
+    label.append(radio, String.fromCharCode(65+i) + ". " + option);
+    choices.append(label);
+  });
+  feedback.textContent = "";
+  check.hidden = false;
+  check.disabled = true;
+  next.hidden = true;
+  next.textContent = index === quiz.questions.length-1 ? "See score" : "Next question";
+  if (focus) progress.focus();
+}
+form.addEventListener("change", () => { if (!checked) check.disabled = false; });
+form.addEventListener("submit", event => {
+  event.preventDefault();
+  const answer = form.querySelector("input:checked");
+  if (!answer || checked) return;
+  checked = true;
+  const [,options,correct,reason] = quiz.questions[index];
+  const right = Number(answer.value) === correct;
+  if (right) points++;
+  const labels = choices.querySelectorAll("label");
+  labels[correct].classList.add("good");
+  if (!right) answer.parentElement.classList.add("miss");
+  feedback.textContent = (right ? "Correct. " : "Answer: " + String.fromCharCode(65+correct) + ". " + options[correct] + " — ") + reason;
+  choices.disabled = true;
+  check.hidden = true;
+  next.hidden = false;
+  next.focus();
+});
+next.addEventListener("click", () => {
+  if (!checked) return;
+  index++;
+  if (index < quiz.questions.length) { render(true); return; }
+  form.hidden = true;
+  progress.textContent = "Quiz complete";
+  score.textContent = "You scored " + points + " out of " + quiz.questions.length + ".";
+  byId("summary").textContent = points === quiz.questions.length
+    ? "You got every question right."
+    : "Try again and see if you can explain why each answer works.";
+  results.hidden = false;
+  score.focus();
+});
+byId("retry").addEventListener("click", () => {
+  index = 0; points = 0; results.hidden = true; form.hidden = false;
+  render(true);
+});
+render();
+</script>
+</body>
+</html>
