@@ -237,8 +237,8 @@ let busy = false;
 let generation = 0;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 let accepted = '';
-// Match common English profanity and obvious variants anywhere in the text.
-const blockedWord = /(?:f[u*]ck(?:ed|er|ers|ing|s)?|sh[i1*]t(?:s|ty|ting)?|b[i1*]tch(?:es|y)?|bastards?|d[i1*]cks?|pr[i1*]cks?|p[i1*]ss(?:ed|ing)?|assholes?|arseholes?|bullsh[i1*]t|motherf[u*]ck(?:er|ers|ing)?|c[u*]nts?|twats?|wank(?:er|ers|ing)?|sluts?|wh[o0]res?)/i;
+// Match common English profanity, discriminatory slurs and obvious variants anywhere in the text.
+const blockedWord = /(?:f[u*]ck(?:ed|er|ers|ing|s)?|sh[i1*]t(?:s|ty|ting)?|b[i1*]tch(?:es|y)?|bastards?|d[i1*]cks?|pr[i1*]cks?|p[i1*]ss(?:ed|ing)?|assholes?|arseholes?|bullsh[i1*]t|motherf[u*]ck(?:er|ers|ing)?|c[u*]nts?|twats?|wank(?:er|ers|ing)?|sluts?|wh[o0]res?|n[i1!*]gg(?:[e3*]r|[a4*])s?|f[a4*]gg?[o0*]ts?|k[i1*]kes?|ch[i1*]nks?|c[o0*]{2}ns?|g[o0*]{2}ks?|r[e3*]t[a4*]rds?|tr[a4*]nn(?:y|ies))/i;
 const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 function handleInput(event) {
   if (event.isComposing || !typing.value) return;
