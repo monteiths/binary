@@ -80,6 +80,7 @@ details p{font-size:13px}
 </div>
 </article></main>
 <script>
+(() => {
 'use strict';
 const get = id => document.getElementById(id);
 const binary = digit => digit.charCodeAt(0).toString(2).padStart(8,'0');
@@ -205,6 +206,7 @@ for(let code=32;code<=126;code++){
 }
 get('accessibleTable').append(table);
 if(ctx)get('asciiImage').src=canvas.toDataURL('image/png');
+})();
 </script>
 </body>
 </html>
