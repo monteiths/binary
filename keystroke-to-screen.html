@@ -237,8 +237,8 @@ let busy = false;
 let generation = 0;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 let accepted = '';
-// Common English profanity and obvious variants, matched as words.
-const blockedWord = /\b(?:f[u*]ck(?:ed|er|ers|ing|s)?|sh[i1*]t(?:s|ty|ting)?|b[i1*]tch(?:es|y)?|bastards?|d[i1*]cks?|pr[i1*]cks?|p[i1*]ss(?:ed|ing)?|assholes?|arseholes?|bullsh[i1*]t|motherf[u*]ck(?:er|ers|ing)?|c[u*]nts?|twats?|wank(?:er|ers|ing)?|sluts?|wh[o0]res?)\b/i;
+// Match common English profanity and obvious variants anywhere in the text.
+const blockedWord = /(?:f[u*]ck(?:ed|er|ers|ing|s)?|sh[i1*]t(?:s|ty|ting)?|b[i1*]tch(?:es|y)?|bastards?|d[i1*]cks?|pr[i1*]cks?|p[i1*]ss(?:ed|ing)?|assholes?|arseholes?|bullsh[i1*]t|motherf[u*]ck(?:er|ers|ing)?|c[u*]nts?|twats?|wank(?:er|ers|ing)?|sluts?|wh[o0]res?)/i;
 const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 function handleInput(event) {
   if (event.isComposing || !typing.value) return;
@@ -255,8 +255,9 @@ function enqueue(text) {
   const match = blockedWord.exec(candidate);
   if (match) {
     // Remove any part already displayed and cancel any part still in transit.
-    accepted = candidate.slice(0, match.index);
-    resetPipeline(accepted, 'That word was blocked. Try another word.');
+    accepted = '';
+    typing.value = '';
+    resetPipeline('', 'That word was blocked. Try another word.');
     return;
   }
   accepted = candidate;
