@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>See where the digit codes fit in the ASCII table</title>
+<title>Give other characters their own codes</title>
 <style>
 :root{--purple:#542fa1;--ink:#241d34;--muted:#665a75;--line:#ded4ef;--yellow:#ffdc64;--pale:#f0eafb}
 *{box-sizing:border-box}body{margin:0;background:#f7f4fb;color:var(--ink);font:16px/1.45 system-ui,sans-serif}
@@ -41,27 +41,37 @@ details p{font-size:13px}
 </head>
 <body>
 <main><article>
-<h1>See where the digit codes fit in the ASCII table</h1>
-<h2>What could we do with the other patterns?</h2>
-<p>Eight bits make <strong>256 different patterns</strong>. Ten patterns can represent the ten digits. That leaves <strong>246</strong> for other meanings in an eight-bit code system.</p>
-<div class="capacity" id="capacity" role="img" aria-label="256 patterns. Ten are assigned to decimal digits, leaving 246 for other meanings."></div>
-<div class="legend"><span><i class="swatch"></i>10 digit patterns</span><span><i class="swatch free"></i>246 other possible patterns</span></div>
-<p class="muted">Letters, spaces and punctuation can each have an agreed code too. Both computers need to use the same lookup table.</p>
+<h1>Give other characters their own codes</h1>
+<p>We have codes for ten digits. What could the other patterns represent?</p>
+<div class="intro">
+  <div class="portrait" id="portrait"><img src="binary-digit-discovery.png" alt="A student wondering how to represent letters and symbols" id="person"></div>
+  <div>
+    <div class="thought" id="thought">What if we want to write a word, a space or an ampersand?<small>Could the same lookup-table idea work for these characters?</small></div>
+    <button class="action" type="button" id="idea">Reveal the idea</button>
+  </div>
+</div>
+<div id="discovery" hidden>
+<h2>Give each character an agreed code</h2>
+<p>Yes! We can assign different binary patterns to capitals, lowercase letters, digits, spaces and punctuation.</p>
+<p>ASCII is one shared lookup table. Using the same table lets computers encode and decode the same message.</p>
+<h2 style="margin-top:16px">See where the digit codes fit in the ASCII table</h2>
 <p>This is the shared table used here. The ten digit entries are highlighted in yellow.</p>
 <img id="asciiImage" alt="Printable ASCII lookup table with eight-bit codes. Digits 0 to 9 are highlighted. An accessible text table follows.">
 <details><summary>Read the lookup table as text</summary><div id="accessibleTable"></div></details>
-<p>ASCII uses 128 codes and fits in seven bits. We show its codes in eight-bit bytes with a leading 0. The 246 figure describes the available capacity of an eight-bit system after assigning ten digit codes.</p>
+<p>ASCII uses 128 codes and fits in seven bits. We show its codes in eight-bit bytes with a leading 0. The table above shows its printable characters.</p>
 
+</div>
 </article></main>
 <script>(() => {
 'use strict';
 const get = id => document.getElementById(id);
-for(let i=0;i<256;i++){
-  const slot=document.createElement('span');
-  slot.className='slot'+(i<10?' used':'');
-  slot.setAttribute('aria-hidden','true');
-  get('capacity').append(slot);
-}
+get('idea').onclick=()=>{
+  get('portrait').classList.add('realised');
+  get('person').alt='The student realises that letters, spaces and punctuation can each have their own binary code';
+  get('thought').textContent='We can give letters and symbols their own codes too!';
+  get('idea').hidden=true;
+  get('discovery').hidden=false;
+};
 // Render the exact character codes as an image so the printed table stays accurate.
 const canvas=document.createElement('canvas');
 const columns=4, rows=24, cellWidth=220, rowHeight=29, top=40;

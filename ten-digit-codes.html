@@ -64,6 +64,13 @@ details p{font-size:13px}
   <p>We reuse the same ten digit codes as many times as we need. Longer numbers use more groups of bits.</p>
 </div>
 <p class="muted">Here we are storing the written digits as text. For example, the number 42 is 00101010 as an eight-bit number. The text “42” uses the digit codes 00110100 and 00110010.</p>
+<h2 style="margin-top:18px">See where the digit codes fit in the ASCII table</h2>
+<h2>What could we do with the other patterns?</h2>
+<p>Eight bits make <strong>256 different patterns</strong>. Ten patterns can represent the ten digits. That leaves <strong>246</strong> for other meanings in an eight-bit code system.</p>
+<div class="capacity" id="capacity" role="img" aria-label="256 patterns. Ten are assigned to decimal digits, leaving 246 for other meanings."></div>
+<div class="legend"><span><i class="swatch"></i>10 digit patterns</span><span><i class="swatch free"></i>246 other possible patterns</span></div>
+<p class="muted">Letters, spaces and punctuation can each have an agreed code too. Both computers need to use the same lookup table.</p>
+<p class="muted">The next resource shows the shared table used here, with the ten digit entries highlighted in yellow.</p>
 </div>
 </article></main>
 <script>
@@ -85,6 +92,13 @@ for (let digit=0; digit<10; digit++) {
   get('digits').append(cell);
   digitCells.set(String(digit),cell);
 }
+for(let i=0;i<256;i++){
+  const slot=document.createElement('span');
+  slot.className='slot'+(i<10?' used':'');
+  slot.setAttribute('aria-hidden','true');
+  get('capacity').append(slot);
+}
+
 get('idea').onclick=()=>{
   get('portrait').classList.add('realised');
   get('person').alt='The student realises that ten digit codes can be reused to write any whole number';
