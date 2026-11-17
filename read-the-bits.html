@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Read the bits</title>
+<style>
+:root{color-scheme:light;--ink:#231c36;--muted:#5f566e;--purple:#542fa1;--line:#ded4ef;--lavender:#f0eafb;--yellow:#ffdc64;--mono:ui-monospace,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:#f7f4fb;color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+main{width:min(1120px,100%);margin:auto;padding:clamp(10px,3vw,30px)}
+header{padding:clamp(20px,4vw,39px);border-radius:18px;background:#382169;color:#fff;margin-bottom:18px}
+h1,h2,h3,p{margin:0} h1{font-size:clamp(30px,5vw,52px);letter-spacing:-.045em;line-height:1.04}
+header p{margin-top:9px;color:#eee5ff}
+section{margin:0 0 16px;padding:clamp(14px,3vw,26px);background:white;border:1px solid var(--line);border-radius:16px;box-shadow:0 3px 12px #41236a08}
+section>p,.help{color:var(--muted);margin-top:5px}
+h2{font-size:clamp(21px,3.5vw,29px);letter-spacing:-.025em;line-height:1.18}
+h3{font-size:15px;margin-bottom:5px}
+button,input{font:inherit} button{cursor:pointer;color:var(--purple);font-weight:700}
+button:focus-visible,input:focus-visible{outline:3px solid #7b50d3;outline-offset:2px}
+.action{border:1px solid var(--purple);border-radius:8px;background:white;padding:7px 12px}
+.primary{background:var(--purple);color:white}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.bits{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:clamp(3px,1vw,10px);margin:18px 0 14px}
+.place{text-align:center;min-width:0;color:var(--purple);font-size:clamp(12px,2.2vw,20px);font-weight:800}
+.bit{margin-top:4px;width:100%;height:clamp(44px,9vw,94px);border:2px solid #c8b6e5;border-radius:clamp(5px,1.4vw,12px);background:#efe9f8;color:#706481;font-size:clamp(22px,5vw,46px);font-weight:850}
+.bit[aria-pressed=true]{background:var(--yellow);border-color:#c1942a;color:#392707;box-shadow:inset 0 -4px #e1b341}
+.place small{display:block;color:var(--muted);font-size:11px;font-weight:450;margin-top:4px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.answer{background:var(--lavender);border-radius:9px;padding:10px 13px;min-height:83px}
+.answer span{display:block;color:var(--muted);font-size:13px}
+.answer strong{font-size:clamp(19px,4vw,32px);color:var(--purple);line-height:1.15}
+.answer small{display:block;color:var(--muted);overflow-wrap:anywhere}
+.lookup{display:grid;grid-template-columns:minmax(0,1fr) minmax(175px,26%);gap:14px;margin-top:16px;align-items:start}
+.group+.group{margin-top:10px}
+.glyphs{display:grid;grid-template-columns:repeat(auto-fill,minmax(35px,1fr));gap:5px}
+.glyph{min-height:38px;border:1px solid var(--line);border-radius:6px;background:#fbf9fe;font-size:18px;padding:0 2px}
+.glyph[data-code="32"]{font-size:11px}
+.glyph[aria-pressed=true]{background:var(--yellow);border-color:#c1942a;color:#392707}
+.lookup-output{position:sticky;top:8px;background:var(--lavender);padding:14px;border-radius:10px;text-align:center}
+#selectedGlyph{display:block;color:var(--purple);font-size:clamp(28px,6vw,60px);line-height:1.1;overflow-wrap:anywhere}
+.code{font:bold clamp(17px,3.1vw,30px)/1.4 var(--mono);letter-spacing:.01em}
+#selectedCode{display:block;margin:7px 0}
+.entry{display:flex;gap:7px 12px;flex-wrap:wrap;align-items:center;margin:14px 0 10px}
+.entry label{font-weight:750}
+.entry input{min-width:130px;flex:1;padding:8px 10px;border:1px solid #ad98c9;border-radius:7px}
+.flow{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(34px,.36fr) minmax(100px,1fr) minmax(34px,.36fr) minmax(125px,1.2fr);align-items:center;margin-top:15px}
+.device{min-width:0}
+.caption{font-size:13px;font-weight:800;text-align:center;margin-bottom:6px}
+.keyboard{background:#302747;border:1px solid #46375b;border-radius:10px;padding:8px;box-shadow:0 5px #211831}
+.keyrow{display:flex;justify-content:center;gap:3px;margin-bottom:4px}
+.keyrow:last-child{margin:0}
+.key{min-width:0;min-height:30px;flex:1;padding:0 1px;border:0;border-bottom:2px solid #bbb0cf;border-radius:4px;background:#f8f5fd;color:#34264c;font-size:clamp(10px,1.4vw,14px)}
+.key.wide{flex:2}.key.space{flex:5}.key[aria-pressed=true],.key.hit{background:var(--yellow);border-color:#c1942a}
+.cable{height:6px;background:#362853;position:relative;border-radius:3px}
+.packet{position:absolute;left:0;top:50%;z-index:3;border:1px solid #be9123;border-radius:5px;background:var(--yellow);color:#302105;padding:2px 5px;font:bold 13px var(--mono);white-space:nowrap;transform:translate(-50%,-50%);pointer-events:none}
+.decoder{padding:10px 6px;min-height:107px;background:var(--lavender);border:2px solid #c8b6e5;border-radius:9px;text-align:center}
+.decoder.active{background:#fff1b4;border-color:#c1942a}
+.decoder small{display:block;color:var(--muted)}
+#decoderCode{display:block;font:700 clamp(12px,1.7vw,20px) var(--mono);margin:5px 0}
+#decoderGlyph{font-size:24px;line-height:1.1}
+.monitor{padding:7px;background:#32274b;border-radius:9px}
+.screen{min-height:93px;background:#221936;color:#fff1ac;border:1px solid #584774;border-radius:5px;padding:8px;font:700 clamp(16px,2.3vw,24px)/1.35 var(--mono);overflow-wrap:anywhere;white-space:pre-wrap}
+.screen:empty:after{content:"▌";color:#b7a2d5}
+.stand{width:40%;height:11px;background:#48385f;margin:auto;border-radius:0 0 4px 4px}
+#flowStatus{margin-top:13px;min-height:2.9em;background:var(--lavender);color:#37255b;border-radius:8px;padding:8px 10px}
+.help{font-size:13px}
+@media(max-width:675px){
+  .flow{grid-template-columns:1fr;justify-items:center}
+  .device{width:min(100%,460px)}
+  .flow .device:last-child,.flow .decoder{width:min(100%,330px)}
+  .cable{height:53px;width:6px}
+  .packet{left:50%;top:0}
+  .key{font-size:13px}
+  .lookup{grid-template-columns:1fr}
+  .lookup-output{grid-row:1;position:static;display:flex;align-items:center;justify-content:center;gap:8px 16px;flex-wrap:wrap}
+  #selectedGlyph{font-size:30px}
+}
+@media(max-width:370px){.place small{display:none}}
+
+main{padding:8px}section{margin:0}
+
+</style>
+</head>
+<body>
+<main>
+<section aria-labelledby="read-title">
+  <h2 id="read-title">1. Read the bits</h2>
+  <p>Click a card to turn it on or off. Read the pattern as a number, then reveal both interpretations.</p>
+  <div class="bits" id="bits" role="group" aria-label="Eight binary place values"></div>
+  <div class="actions">
+    <button class="action primary" id="reveal" type="button" aria-pressed="false">Reveal answer</button>
+    <button class="action" id="resetBits" type="button">Reset to 01000001</button>
+  </div>
+  <div class="answers" role="status" aria-live="polite">
+    <div class="answer"><span>Decimal total</span><strong id="decimal">?</strong><small id="addition"></small></div>
+    <div class="answer"><span>ASCII lookup</span><strong id="ascii">?</strong><small id="asciiNote"></small></div>
+  </div>
+</section>
+</main>
+<script>
+'use strict';
+const get = id => document.getElementById(id);
+const bitsFor = value => value.toString(2).padStart(8, '0');
+const characterFor = value => String.fromCharCode(value);
+const displayCharacter = character => character === ' ' ? 'Space' : character;
+const printable = value => value >= 32 && value <= 126;
+const placeValues = [128, 64, 32, 16, 8, 4, 2, 1];
+
+let value = 65;
+let revealed = false;
+const cards = placeValues.map(place => {
+  const cell = document.createElement('div');
+  cell.className = 'place';
+  cell.textContent = place;
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'bit';
+  button.addEventListener('click', () => {
+    value ^= place;
+    revealed = false;
+    drawBits();
+  });
+  const caption = document.createElement('small');
+  caption.textContent = place + 's';
+  cell.append(button, caption);
+  get('bits').append(cell);
+  return button;
+});
+
+function drawBits() {
+  cards.forEach((card, index) => {
+    const bit = (value & placeValues[index]) ? 1 : 0;
+    card.textContent = bit;
+    card.setAttribute('aria-pressed', Boolean(bit));
+    card.setAttribute('aria-label', placeValues[index] + ' place: ' + bit);
+  });
+  get('reveal').textContent = revealed ? 'Hide answer' : 'Reveal answer';
+  get('reveal').setAttribute('aria-pressed', revealed);
+  get('decimal').textContent = revealed ? value : '?';
+  get('addition').textContent = revealed
+    ? (placeValues.filter(place => value & place).join(' + ') || '0') + ' = ' + value : '';
+  get('ascii').textContent = !revealed ? '?' : printable(value)
+    ? displayCharacter(characterFor(value)) : value < 128 ? 'Control code' : 'Outside ASCII';
+  get('asciiNote').textContent = revealed ? bitsFor(value) : '';
+}
+get('reveal').onclick = () => { revealed = !revealed; drawBits(); };
+get('resetBits').onclick = () => { value = 65; revealed = false; drawBits(); };
+drawBits();
+
+</script>
+</body>
+</html>
