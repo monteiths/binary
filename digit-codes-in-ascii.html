@@ -47,7 +47,7 @@ details p{font-size:13px}
   <div class="portrait" id="portrait"><img src="binary-character-girl.png" alt="A girl thinking about how to represent letters and symbols" id="person"></div>
   <div>
     <div class="thought" id="thought">What if we want to write a word, a space or an ampersand?<small>Could the same lookup-table idea work for these characters?</small></div>
-    <button class="action" type="button" id="idea">Reveal her idea</button>
+    <button class="action" type="button" id="idea">Reveal the idea</button>
   </div>
 </div>
 <div id="discovery" hidden>
@@ -55,8 +55,8 @@ details p{font-size:13px}
 <p>Yes! We can assign different binary patterns to capitals, lowercase letters, digits, spaces and punctuation.</p>
 <p>ASCII is one shared lookup table. Using the same table lets computers encode and decode the same message.</p>
 <h2 style="margin-top:16px">The shared ASCII table</h2>
-<p>This is the shared table used here. The ten digit entries are highlighted in yellow.</p>
-<img id="asciiImage" alt="Printable ASCII lookup table with eight-bit codes. Digits 0 to 9 are highlighted. An accessible text table follows.">
+<p>This is the shared table used here.</p>
+<img id="asciiImage" alt="Printable ASCII lookup table with eight-bit codes. An accessible text table follows.">
 <details><summary>Read the lookup table as text</summary><div id="accessibleTable"></div></details>
 <p>ASCII uses 128 codes and fits in seven bits. We show its codes in eight-bit bytes with a leading 0. The table above shows its printable characters.</p>
 
@@ -91,7 +91,7 @@ for(let code=32;code<=126;code++){
   const char=String.fromCharCode(code), pattern=code.toString(2).padStart(8,'0'), index=code-32;
   const col=Math.floor(index/rows), row=index%rows, x=col*cellWidth,y=top+row*rowHeight;
   if(ctx){
-    ctx.fillStyle=code>=48&&code<=57?'#ffdc64':row%2?'#f0eafb':'#ffffff';
+    ctx.fillStyle=row%2?'#f0eafb':'#ffffff';
     ctx.fillRect(x,y,cellWidth,rowHeight);
     ctx.fillStyle='#241d34';ctx.font='bold 17px monospace';
     ctx.fillText(char===' '?'Space':char,x+12,y+21);
