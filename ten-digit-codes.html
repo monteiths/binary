@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Give the ten digits ten codes</title>
+<style>
+:root{--purple:#542fa1;--ink:#241d34;--muted:#665a75;--line:#ded4ef;--yellow:#ffdc64;--pale:#f0eafb}
+*{box-sizing:border-box}body{margin:0;background:#f7f4fb;color:var(--ink);font:16px/1.45 system-ui,sans-serif}
+main{max-width:1020px;margin:auto;padding:8px}article{padding:clamp(14px,3vw,25px);background:white;border:1px solid var(--line);border-radius:16px}
+h1{font-size:clamp(23px,3.5vw,31px);line-height:1.15;margin:0 0 6px;letter-spacing:-.025em}h2{font-size:19px;margin:0 0 5px}p{margin:5px 0 12px}.muted{color:var(--muted);font-size:13px}
+button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #7b50d3;outline-offset:3px}
+.action{border:1px solid var(--purple);border-radius:7px;background:var(--purple);color:white;font-weight:750;padding:8px 12px}.action.secondary{background:white;color:var(--purple)}
+.intro{display:grid;grid-template-columns:160px minmax(0,1fr);gap:18px;align-items:center;background:#f9f6ff;padding:10px;border-radius:10px;margin:12px 0}
+.portrait{overflow:hidden;aspect-ratio:1/1;position:relative;border-radius:8px;background:#faf8ff}
+.portrait img{width:200%;height:100%;object-fit:cover;max-width:none;display:block}
+.portrait.realised img{transform:translateX(-50%)}
+.thought{font-size:clamp(17px,2.5vw,23px);font-weight:750;line-height:1.3}
+.thought small{display:block;font-size:14px;font-weight:450;margin-top:8px;color:var(--muted)}
+[hidden]{display:none!important}
+.digits{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;margin:12px 0}
+.digit{border:1px solid var(--line);border-radius:7px;background:white;text-align:center;padding:5px 2px;color:var(--purple)}
+.digit strong{display:block;font-size:25px}.digit code{display:block;font:700 11px ui-monospace,monospace}
+.digit.active{background:var(--yellow);border-color:#a47b1b}
+.entry{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}.entry label{font-weight:750}
+input{min-width:130px;max-width:100%;flex:1;border:1px solid #ad98c9;border-radius:7px;padding:8px 10px}
+.tokens{display:flex;gap:8px;flex-wrap:wrap;padding:12px;background:var(--pale);border-radius:9px;min-height:80px}
+.token{border:1px solid #cbb7e8;border-radius:7px;background:white;padding:6px 9px;text-align:center;min-width:99px}
+.token strong{display:block;font-size:25px;color:var(--purple)}.token code{font:700 14px ui-monospace,monospace}.token.active{background:var(--yellow)}
+#message{min-height:1.5em;font-size:14px;color:var(--purple);margin:7px 0}
+.summary{margin-top:11px;background:#fff6cf;padding:10px 12px;border-radius:9px}
+.capacity{display:grid;grid-template-columns:repeat(32,1fr);gap:3px;margin:9px 0}
+.slot{aspect-ratio:1;background:#e4d9f6;border-radius:2px}.slot.used{background:#e6b932}
+.legend{display:flex;gap:7px 20px;flex-wrap:wrap;font-size:13px}.swatch{display:inline-block;width:11px;height:11px;background:#e6b932;margin-right:5px}.swatch.free{background:#e4d9f6}
+details{margin-top:13px;border-top:1px solid var(--line);padding-top:10px}summary{cursor:pointer;color:var(--purple);font-weight:750}
+#asciiImage{display:block;width:100%;height:auto;border:1px solid var(--line);margin-top:8px}
+details p{font-size:13px}
+@media(max-width:650px){.digits{grid-template-columns:repeat(5,minmax(0,1fr))}.intro{grid-template-columns:105px minmax(0,1fr);gap:10px}.capacity{grid-template-columns:repeat(16,1fr)}.digit code{font-size:12px}}
+@media(prefers-reduced-motion:no-preference){.portrait img{transition:transform .35s ease}}
+</style>
+</head>
+<body>
+<main><article>
+<h1>Give the ten digits ten codes</h1>
+<p>We can give each digit its own binary code and look up what that code means.</p>
+<div class="intro">
+  <div class="portrait" id="portrait"><img src="binary-digit-discovery.png" alt="A student thinking, then having an idea" id="person"></div>
+  <div><div class="thought" id="thought">Do we need a different code for every number?<small>Think about 7, 42 and 2012. What do we use to write them?</small></div>
+  <button class="action" type="button" id="idea">Reveal the idea</button></div>
+</div>
+<div id="discovery" hidden>
+<p>Every whole number can be written using the digits <strong>0 to 9</strong>. Reuse their codes to build the number one digit at a time.</p>
+<div class="digits" id="digits" role="group" aria-label="ASCII codes for the ten decimal digits"></div>
+<div class="entry">
+  <label for="number">Write a whole number</label>
+  <input id="number" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" value="2012" aria-describedby="message">
+  <button class="action" id="encode" type="button">Encode the digits</button>
+  <button class="action secondary" id="reset" type="button">Start again</button>
+</div>
+<div id="tokens" class="tokens" aria-label="Encoded digits"></div>
+<p id="message" role="status">Try 2012, your age, or a number of your own.</p>
+<div class="summary" id="summary" hidden>
+  <strong id="result"></strong>
+  <p>We reuse the same ten digit codes as many times as we need. Longer numbers use more groups of bits.</p>
+</div>
+<p class="muted">Here we are storing the written digits as text. For example, the number 42 is 00101010 as an eight-bit number. The text “42” uses the digit codes 00110100 and 00110010.</p>
+</div>
+</article></main>
+<script>
+(() => {
+'use strict';
+const get = id => document.getElementById(id);
+const binary = digit => digit.charCodeAt(0).toString(2).padStart(8,'0');
+const digitCells = new Map();
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+let run = 0;
+for (let digit=0; digit<10; digit++) {
+  const cell=document.createElement('div');
+  cell.className='digit';
+  const label=document.createElement('strong');
+  label.textContent=digit;
+  const code=document.createElement('code');
+  code.textContent=binary(String(digit));
+  cell.append(label,code);
+  get('digits').append(cell);
+  digitCells.set(String(digit),cell);
+}
+get('idea').onclick=()=>{
+  get('portrait').classList.add('realised');
+  get('person').alt='The student realises that ten digit codes can be reused to write any whole number';
+  get('thought').textContent='We only need ten codes for the digits 0–9. We can reuse them!';
+  get('idea').hidden=true;
+  get('discovery').hidden=false;
+};
+function clearEncoding(){
+  run++;
+  get('tokens').replaceChildren();
+  get('summary').hidden=true;
+  for(const cell of digitCells.values())cell.classList.remove('active');
+}
+get('number').addEventListener('input',()=>{
+  clearEncoding();
+  get('number').removeAttribute('aria-invalid');
+  get('message').textContent='Click Encode the digits to look up your number.';
+});
+get('reset').onclick=()=>{
+  clearEncoding();
+  get('number').value='';
+  get('number').removeAttribute('aria-invalid');
+  get('message').textContent='Write another whole number using the digits 0–9.';
+};
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function encode(){
+  clearEncoding();
+  const digits=get('number').value.trim();
+  if(!/^\d+$/.test(digits)){
+    get('number').setAttribute('aria-invalid','true');
+    get('message').textContent='Use the digits 0–9 to write a whole number.';
+    return;
+  }
+  if(digits.length>100){
+    get('message').textContent='Use up to 100 digits in this demonstration.';
+    return;
+  }
+  get('number').removeAttribute('aria-invalid');
+  const thisRun=run;
+  const tokens=[];
+  for(const digit of digits){
+    const token=document.createElement('div');
+    token.className='token';
+    const character=document.createElement('strong');
+    character.textContent=digit;
+    const code=document.createElement('code');
+    code.textContent='????????';
+    token.append(character,code);
+    tokens.push({token,code,digit});
+    get('tokens').append(token);
+  }
+  for(const {token,code,digit} of tokens){
+    if(thisRun!==run)return;
+    digitCells.get(digit).classList.add('active');
+    token.classList.add('active');
+    get('message').textContent='Look up the digit '+digit+'. Its code is '+binary(digit)+'.';
+    code.textContent=binary(digit);
+    await pause(reducedMotion.matches?0:Math.min(650,4000/digits.length));
+    if(thisRun!==run)return;
+    digitCells.get(digit).classList.remove('active');
+    token.classList.remove('active');
+  }
+  get('result').textContent='“'+digits+'” uses '+digits.length+' groups of eight bits ('+(digits.length*8)+' bits).';
+  get('summary').hidden=false;
+  get('message').textContent='Decoded text: '+digits;
+}
+get('encode').onclick=encode;
+get('number').addEventListener('keydown',event=>{
+  if(event.key==='Enter'){event.preventDefault();encode();}
+});
+
+})();
+</script>
+</body></html>

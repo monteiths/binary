@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>See where the digit codes fit in the ASCII table</title>
+<style>
+:root{--purple:#542fa1;--ink:#241d34;--muted:#665a75;--line:#ded4ef;--yellow:#ffdc64;--pale:#f0eafb}
+*{box-sizing:border-box}body{margin:0;background:#f7f4fb;color:var(--ink);font:16px/1.45 system-ui,sans-serif}
+main{max-width:1020px;margin:auto;padding:8px}article{padding:clamp(14px,3vw,25px);background:white;border:1px solid var(--line);border-radius:16px}
+h1{font-size:clamp(23px,3.5vw,31px);line-height:1.15;margin:0 0 6px;letter-spacing:-.025em}h2{font-size:19px;margin:0 0 5px}p{margin:5px 0 12px}.muted{color:var(--muted);font-size:13px}
+button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #7b50d3;outline-offset:3px}
+.action{border:1px solid var(--purple);border-radius:7px;background:var(--purple);color:white;font-weight:750;padding:8px 12px}.action.secondary{background:white;color:var(--purple)}
+.intro{display:grid;grid-template-columns:160px minmax(0,1fr);gap:18px;align-items:center;background:#f9f6ff;padding:10px;border-radius:10px;margin:12px 0}
+.portrait{overflow:hidden;aspect-ratio:1/1;position:relative;border-radius:8px;background:#faf8ff}
+.portrait img{width:200%;height:100%;object-fit:cover;max-width:none;display:block}
+.portrait.realised img{transform:translateX(-50%)}
+.thought{font-size:clamp(17px,2.5vw,23px);font-weight:750;line-height:1.3}
+.thought small{display:block;font-size:14px;font-weight:450;margin-top:8px;color:var(--muted)}
+[hidden]{display:none!important}
+.digits{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;margin:12px 0}
+.digit{border:1px solid var(--line);border-radius:7px;background:white;text-align:center;padding:5px 2px;color:var(--purple)}
+.digit strong{display:block;font-size:25px}.digit code{display:block;font:700 11px ui-monospace,monospace}
+.digit.active{background:var(--yellow);border-color:#a47b1b}
+.entry{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}.entry label{font-weight:750}
+input{min-width:130px;max-width:100%;flex:1;border:1px solid #ad98c9;border-radius:7px;padding:8px 10px}
+.tokens{display:flex;gap:8px;flex-wrap:wrap;padding:12px;background:var(--pale);border-radius:9px;min-height:80px}
+.token{border:1px solid #cbb7e8;border-radius:7px;background:white;padding:6px 9px;text-align:center;min-width:99px}
+.token strong{display:block;font-size:25px;color:var(--purple)}.token code{font:700 14px ui-monospace,monospace}.token.active{background:var(--yellow)}
+#message{min-height:1.5em;font-size:14px;color:var(--purple);margin:7px 0}
+.summary{margin-top:11px;background:#fff6cf;padding:10px 12px;border-radius:9px}
+.capacity{display:grid;grid-template-columns:repeat(32,1fr);gap:3px;margin:9px 0}
+.slot{aspect-ratio:1;background:#e4d9f6;border-radius:2px}.slot.used{background:#e6b932}
+.legend{display:flex;gap:7px 20px;flex-wrap:wrap;font-size:13px}.swatch{display:inline-block;width:11px;height:11px;background:#e6b932;margin-right:5px}.swatch.free{background:#e4d9f6}
+details{margin-top:13px;border-top:1px solid var(--line);padding-top:10px}summary{cursor:pointer;color:var(--purple);font-weight:750}
+#asciiImage{display:block;width:100%;height:auto;border:1px solid var(--line);margin-top:8px}
+details p{font-size:13px}
+@media(max-width:650px){.digits{grid-template-columns:repeat(5,minmax(0,1fr))}.intro{grid-template-columns:105px minmax(0,1fr);gap:10px}.capacity{grid-template-columns:repeat(16,1fr)}.digit code{font-size:12px}}
+@media(prefers-reduced-motion:no-preference){.portrait img{transition:transform .35s ease}}
+</style>
+</head>
+<body>
+<main><article>
+<h1>See where the digit codes fit in the ASCII table</h1>
+<h2>What could we do with the other patterns?</h2>
+<p>Eight bits make <strong>256 different patterns</strong>. Ten patterns can represent the ten digits. That leaves <strong>246</strong> for other meanings in an eight-bit code system.</p>
+<div class="capacity" id="capacity" role="img" aria-label="256 patterns. Ten are assigned to decimal digits, leaving 246 for other meanings."></div>
+<div class="legend"><span><i class="swatch"></i>10 digit patterns</span><span><i class="swatch free"></i>246 other possible patterns</span></div>
+<p class="muted">Letters, spaces and punctuation can each have an agreed code too. Both computers need to use the same lookup table.</p>
+<p>This is the shared table used here. The ten digit entries are highlighted in yellow.</p>
+<img id="asciiImage" alt="Printable ASCII lookup table with eight-bit codes. Digits 0 to 9 are highlighted. An accessible text table follows.">
+<details><summary>Read the lookup table as text</summary><div id="accessibleTable"></div></details>
+<p>ASCII uses 128 codes and fits in seven bits. We show its codes in eight-bit bytes with a leading 0. The 246 figure describes the available capacity of an eight-bit system after assigning ten digit codes.</p>
+
+</article></main>
+<script>(() => {
+'use strict';
+const get = id => document.getElementById(id);
+for(let i=0;i<256;i++){
+  const slot=document.createElement('span');
+  slot.className='slot'+(i<10?' used':'');
+  slot.setAttribute('aria-hidden','true');
+  get('capacity').append(slot);
+}
+// Render the exact character codes as an image so the printed table stays accurate.
+const canvas=document.createElement('canvas');
+const columns=4, rows=24, cellWidth=220, rowHeight=29, top=40;
+canvas.width=columns*cellWidth;
+canvas.height=top+rows*rowHeight;
+const ctx=canvas.getContext('2d');
+if(ctx){
+  ctx.fillStyle='#542fa1';ctx.fillRect(0,0,canvas.width,top);
+  ctx.fillStyle='white';ctx.font='bold 17px sans-serif';
+  for(let col=0;col<columns;col++)ctx.fillText('Character    Binary code',col*cellWidth+10,26);
+}
+const table=document.createElement('table');
+const caption=document.createElement('caption');caption.textContent='Printable ASCII characters and binary codes';table.append(caption);
+const header=document.createElement('tr');
+for(const name of ['Character','Binary code']){const th=document.createElement('th');th.scope='col';th.textContent=name;header.append(th);}table.append(header);
+for(let code=32;code<=126;code++){
+  const char=String.fromCharCode(code), pattern=code.toString(2).padStart(8,'0'), index=code-32;
+  const col=Math.floor(index/rows), row=index%rows, x=col*cellWidth,y=top+row*rowHeight;
+  if(ctx){
+    ctx.fillStyle=code>=48&&code<=57?'#ffdc64':row%2?'#f0eafb':'#ffffff';
+    ctx.fillRect(x,y,cellWidth,rowHeight);
+    ctx.fillStyle='#241d34';ctx.font='bold 17px monospace';
+    ctx.fillText(char===' '?'Space':char,x+12,y+21);
+    ctx.font='16px monospace';ctx.fillText(pattern,x+108,y+21);
+  }
+  const tr=document.createElement('tr');
+  const name=document.createElement('td');name.textContent=char===' '?'Space':char;
+  const bits=document.createElement('td');bits.textContent=pattern;tr.append(name,bits);table.append(tr);
+}
+get('accessibleTable').append(table);
+if(ctx)get('asciiImage').src=canvas.toDataURL('image/png');
+})();
+</script>
+</body></html>
